@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-    "time"
+	"time"
 )
 
-type RequestBody struct { // CHANGED
+type RequestBody struct {
 	Name string `json:"name"`
+	UUID string `json:"uuid"`
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +50,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("uuid: %s\n", body.UUID) // CHANGED: 打印刚加的 uuid
+
 	// CHANGED: 确保 body 里只有一个 JSON 对象（防止 `{} {}` 这种）
 	if dec.More() {
 		http.Error(w, "Bad Request: multiple JSON values", http.StatusBadRequest)
@@ -61,8 +64,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	i, err := strconv.ParseInt(body.Name, 10, 64) 
-	
+	i, err := strconv.ParseInt(body.Name, 10, 64)
+
 	if err != nil {
 		fmt.Printf("Error during conversion: %v\n", err)
 		return
