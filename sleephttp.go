@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/json" // CHANGED
+	"encoding/json"
 	"fmt"
 	"log"
-	"mime" // CHANGED
+	"mime"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,15 +17,13 @@ type RequestBody struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("helloworld: received a %s request", r.Method) // CHANGED
+	//log.Printf("helloworld: received a %s request", r.Method)
 
-	// CHANGED: 只接受 POST
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed: use POST", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// CHANGED: 只接受 application/json（允许带 charset）
 	mediaType := r.Header.Get("Content-Type")
 	if mediaType == "" {
 		http.Error(w, "Unsupported Media Type: Content-Type required", http.StatusUnsupportedMediaType)
@@ -41,39 +39,42 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// CHANGED: 解析 JSON body
 	var body RequestBody
 	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields() // CHANGED: 多余字段直接报错
+	dec.DisallowUnknownFields()
 	if err := dec.Decode(&body); err != nil {
 		http.Error(w, "Bad Request: invalid JSON body", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Printf("uuid: %s\n", body.UUID) // CHANGED: 打印刚加的 uuid
+	//log.Printf("uuid: %s", body.UUID)
+	//log.Printf("uuid: %s, x-request-id: %s", body.UUID, r.Header.Get("X-Request-ID"))
 
-	// CHANGED: 确保 body 里只有一个 JSON 对象（防止 `{} {}` 这种）
 	if dec.More() {
 		http.Error(w, "Bad Request: multiple JSON values", http.StatusBadRequest)
 		return
 	}
 
-	// CHANGED: 参数校验
 	if body.Name == "" {
 		http.Error(w, "Bad Request: missing 'name'", http.StatusBadRequest)
 		return
 	}
 
 	i, err := strconv.ParseInt(body.Name, 10, 64)
-
 	if err != nil {
-		fmt.Printf("Error during conversion: %v\n", err)
+		http.Error(w, "Bad Request: invalid 'name'", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Printf("Sleeping for %d milliseconds...\n", i)
-
+	//log.Printf("Sleeping for %d milliseconds...\n", i)
 	time.Sleep(time.Duration(i) * time.Millisecond)
+
+	// 把 request body 原样返回
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(body); err != nil {
+		log.Printf("failed to write response: %v", err)
+	}
 }
 
 func main() {
