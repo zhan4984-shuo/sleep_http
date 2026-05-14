@@ -79,7 +79,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	log.Print("helloworld: starting server...")
-
+	time.Sleep(700 * time.Millisecond)
 	http.HandleFunc("/", handler)
 
 	port := os.Getenv("PORT")
