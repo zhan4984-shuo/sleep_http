@@ -17,7 +17,9 @@ type RequestBody struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("helloworld: received a %s request", r.Method)
+	reqID := r.Header.Get("X-Request-ID")
+	log.Printf("helloworld: received method=%s path=%s reqid=%q content-type=%q user-agent=%q",
+		r.Method, r.URL.Path, reqID, r.Header.Get("Content-Type"), r.UserAgent())
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed: use POST", http.StatusMethodNotAllowed)
