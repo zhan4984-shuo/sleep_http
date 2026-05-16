@@ -17,7 +17,7 @@ type RequestBody struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	//log.Printf("helloworld: received a %s request", r.Method)
+	log.Printf("helloworld: received a %s request", r.Method)
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed: use POST", http.StatusMethodNotAllowed)
@@ -79,7 +79,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	log.Print("helloworld: starting server...")
-	time.Sleep(1200 * time.Millisecond)
+	time.Sleep(1700 * time.Millisecond)
 	http.HandleFunc("/", handler)
 
 	port := os.Getenv("PORT")
